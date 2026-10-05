@@ -468,8 +468,9 @@ Decided:
 - **Repository name:** `agent-playbooks`, public, owned by `aintnorest`.
 - **Enabling playbooks per repo:** pinned release via mise ([option F](#chosen-pinned-release-via-mise)), 2026-10-05.
 - **Software playbook identity:** the package is named `software-factory` (its `package.json` `name`, which Orch persists as the playbook's identity), in `playbooks/software-factory/`, 2026-10-05. This replaces `project-playbook` and the `playbooks/software/` path used elsewhere in these notes.
+- **Move order:** `software-factory` was copied in as one self-contained package from `project-playbook` commit `e89d8f8`, before any core extraction, 2026-10-05. Core is extracted when a second playbook needs it. This replaces steps 1 and 2 of [Moving `project-playbook` in](#moving-project-playbook-in); repository tooling (`lefthook.yml`, `mise.toml`, `mise.lock`, `.rumdl.toml`, `LICENSE`) lives at the repository root.
+- **Grounding field:** `productBasis` and `productBasisUnavailableReason` are renamed `intentBasis` and `intentBasisUnavailableReason`, 2026-10-05. Because `software-factory` is a new package, its first release stays `1.0.0` and the developer-request record stays version `1`; no migration guide covers the move from `project-playbook`.
 
 Open:
 
 1. **`project-playbook`'s Beads issues.** You will review them before deciding what moves. Its `.beads/` holds open evidence issues about software agent runs (slice-02 to slice-04) and roadmap follow-ups.
-2. **The grounding field in `request_developer`** (see [Core contents](#core-contents)). Renaming `productBasis` to a domain-neutral name is a breaking tool-contract change. It costs least during the move, while the software playbook is its only consumer.

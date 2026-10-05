@@ -1,3 +1,5 @@
 [global]
-# Prose uses semantic (paragraph) lines.
-disable = ["MD013"]
+# Prose uses semantic (paragraph) lines; agent bodies start after YAML metadata.
+disable = ["MD013", "MD041"]
+# Generated skills are checked through their sources.
+exclude = ["playbooks/*/skills/**"]

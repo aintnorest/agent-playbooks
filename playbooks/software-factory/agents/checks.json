@@ -1,0 +1,10 @@
+{
+  "skillsWithoutAgents": {
+    "orchestrate-factory": "It runs in the interactive main session because only that session can ask the developer."
+  },
+  "exemptions": {
+    "review-doc-implementation-plan-agent": {
+      "reviewer-read-only": "The registered check_implementation_plan tool only runs the read-only implementation-plan validator and returns its results; the reviewer gains no write tool."
+    }
+  }
+}

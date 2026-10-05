@@ -1,4 +1,19 @@
+pre-commit:
+  commands:
+    software-factory-build-skills:
+      root: playbooks/software-factory/
+      run: python3 scripts/build-skills.py && git add skills agents && python3 scripts/build-skills.py --check
+
 pre-push:
   commands:
+    software-factory-python-tests:
+      root: playbooks/software-factory/
+      run: python3 scripts/git_environment.py python3 -m unittest discover -s tests
+    software-factory-extension-tests:
+      root: playbooks/software-factory/
+      run: python3 scripts/git_environment.py bun test
+    software-factory-omp-load:
+      root: playbooks/software-factory/
+      run: python3 scripts/git_environment.py python3 scripts/check-omp-load.py
     markdown:
       run: mise run lint-markdown

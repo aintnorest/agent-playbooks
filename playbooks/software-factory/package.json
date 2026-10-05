@@ -1,0 +1,12 @@
+{
+  "name": "software-factory",
+  "version": "0.0.0",
+  "private": true,
+  "description": "OMP extension package exposing the playbook's agents/ and skills/ capability directories.",
+  "omp": {
+    "extensions": ["./omp-extension.ts"]
+  },
+  "devDependencies": {
+    "@oh-my-pi/omptype": "18.4.4"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-playbooks.dev/schemas/software-factory/developer-request-v1.json",
+  "title": "Developer request",
+  "description": "Canonical version 1 record. The tool removes null or empty optional fields before validation; required fields are never removed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "kind", "title", "context", "question", "blocking"],
+  "properties": {
+    "version": {"type": "integer", "const": 1},
+    "kind": {"type": "string", "enum": ["decision", "approval", "input", "blocked"]},
+    "title": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "context": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "question": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "blocking": {"type": "boolean"},
+    "intentBasis": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["source", "reference", "relevance"],
+        "properties": {
+          "source": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "reference": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "relevance": {"type": "string", "minLength": 1, "pattern": "\\S"}
+        }
+      }
+    },
+    "intentBasisUnavailableReason": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "options": {
+      "type": "array", "minItems": 2, "maxItems": 5,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["label", "strengths", "weaknesses", "downstream"],
+        "properties": {
+          "label": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "strengths": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+          "weaknesses": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+          "downstream": {"type": "string", "minLength": 1, "pattern": "\\S"}
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["option", "rationale"],
+      "properties": {
+        "option": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "rationale": {"type": "string", "minLength": 1, "pattern": "\\S"}
+      }
+    },
+    "maintainability": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "acceptance": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "needed": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "requiredAction": {"type": "string", "minLength": 1, "pattern": "\\S"}
+  },
+  "oneOf": [
+    {"required": ["intentBasis"], "not": {"required": ["intentBasisUnavailableReason"]}},
+    {"required": ["intentBasisUnavailableReason"], "not": {"required": ["intentBasis"]}}
+  ],
+  "allOf": [
+    {"if": {"properties": {"kind": {"const": "decision"}}, "required": ["kind"]}, "then": {"required": ["options", "recommendation", "maintainability"], "properties": {"acceptance": {"not": {}}, "needed": {"not": {}}, "requiredAction": {"not": {}}}}},
+    {"if": {"properties": {"kind": {"const": "approval"}}, "required": ["kind"]}, "then": {"description": "Options and recommendation are optional on approvals; other kinds' fields are forbidden.", "required": ["acceptance"], "properties": {"maintainability": {"not": {}}, "needed": {"not": {}}, "requiredAction": {"not": {}}}}},
+    {"if": {"properties": {"kind": {"const": "input"}}, "required": ["kind"]}, "then": {"required": ["needed"], "properties": {"options": {"not": {}}, "recommendation": {"not": {}}, "maintainability": {"not": {}}, "acceptance": {"not": {}}, "requiredAction": {"not": {}}}}},
+    {"if": {"properties": {"kind": {"const": "blocked"}}, "required": ["kind"]}, "then": {"required": ["requiredAction"], "properties": {"blocking": {"const": true}, "options": {"not": {}}, "recommendation": {"not": {}}, "maintainability": {"not": {}}, "acceptance": {"not": {}}, "needed": {"not": {}}}}}
+  ]
+}

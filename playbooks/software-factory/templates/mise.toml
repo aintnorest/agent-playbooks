@@ -1,0 +1,86 @@
+# Replace these example version pins with the project's supported versions.
+min_version = "2026.9.1"
+
+[settings]
+lockfile = true
+
+[tool_config]
+locked = true
+
+[env]
+# Replace this example path with a project-owned path, or remove it.
+PROJECT_CACHE_DIR = "{{config_root}}/.cache"
+
+[tools]
+# Replace these example pins and remove tools the project does not use.
+node = "24.15.0"
+"npm:pnpm" = { version = "12.3.1", depends = ["node"] }
+rust = { version = "1.97.0", profile = "minimal", components = ["clippy", "rustfmt", "rust-src", "rust-analyzer"] }
+"cargo:cargo-audit" = { version = "0.22.2", depends = ["rust"], locked = true }
+
+[tasks.versions]
+description = "Show the active project tool versions"
+run = [
+  "rustc --version",
+  "node --version",
+  "pnpm --version",
+  "cargo audit --version",
+]
+
+# Replace "frontend" with the project's frontend directory and adapt package commands.
+[tasks.frontend-install]
+description = "Install the locked frontend dependencies"
+dir = "frontend"
+run = "pnpm install --frozen-lockfile"
+
+[tasks.format]
+description = "Check Rust formatting"
+run = "cargo fmt --all -- --check"
+
+[tasks.lint]
+description = "Run Rust and frontend linters"
+depends = ["frontend-install"]
+run = [
+  "cargo clippy --locked --workspace --all-targets -- -D warnings",
+  "pnpm --dir frontend lint",
+]
+
+[tasks.typecheck]
+description = "Check frontend types"
+depends = ["frontend-install"]
+run = "pnpm --dir frontend typecheck"
+
+# Configure the frontend test script to run once, without watch mode.
+[tasks.frontend-test]
+description = "Run frontend tests without watch mode"
+depends = ["frontend-install"]
+dir = "frontend"
+env = { NODE_ENV = "test" }
+run = "pnpm run test"
+
+[tasks.test]
+description = "Run Rust and frontend tests"
+depends = ["frontend-test"]
+run = [
+  "cargo test --locked --workspace",
+]
+
+[tasks.audit]
+description = "Audit Rust and frontend dependencies"
+depends = ["frontend-install"]
+run = [
+  "cargo audit",
+  "pnpm --dir frontend audit",
+]
+
+# Add any other non-interactive project checks to this list.
+[tasks.verify]
+description = "Run every non-interactive project check"
+run = [
+  { task = "versions" },
+  { task = "format" },
+  { task = "lint" },
+  { task = "typecheck" },
+  { task = "test" },
+  { task = "audit" },
+]
