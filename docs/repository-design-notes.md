@@ -191,7 +191,7 @@ This confirms only the effective setting. It does not confirm agent discovery fr
 PI_CONFIG_FILES = { value = "{% set d = exec(command='mise where http:agent-playbooks-software 2>/dev/null || true') | trim %}{% if d %}{{ d }}/omp-overlay.yml{% endif %}", tools = true }
 ```
 
-Each piece of this snippet was tested on 2026-10-05. The assembled snippet for this repo's layout has not been run, because this repo has no release yet.
+Each piece of this snippet was tested on 2026-10-05. **Verified end to end 2026-10-05:** the snippet as written in the root README, pinned to the published `v1.0.0` tag on GitHub, installed in a temp consumer repo and OMP loaded the `software-factory` package through the overlay (`/playbook-hash` present, bundled `/review` kept).
 
 **Verified 2026-10-05** in temp directories with separate mise state, a temp `HOME`, the real OMP binary, and a dummy model; no model turns. The package was a tarball of the current `project-playbook` checkout served over local HTTP. mise refuses `file://` URLs, and `project-playbook`'s only published tag, `v0.1.0`, predates its OMP package.
 

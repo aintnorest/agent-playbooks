@@ -59,8 +59,6 @@ The repository declares the playbook in its committed `mise.toml`, so every clon
 
 5. **Start OMP from inside the repository** (any subdirectory works) and run `/agents`; the playbook's agents are listed. OMP reads the playbook list only at startup, so restart any OMP session that was already running.
 
-**Release status:** no release has been published yet. Until `v1.0.0` is tagged on GitHub, `mise install` cannot download it; use [your local checkout](#use-a-local-checkout-instead) meanwhile.
-
 ### Upgrade
 
 Change `version` in the repository's `mise.toml`, run `mise install`, and restart OMP. The upgrade shows in the repository's diff. A release that changes how consuming repositories must work ships a migration guide in the playbook's `guides/migrations/`.
@@ -83,7 +81,7 @@ mise downloads the tagged release archive and writes a small OMP settings file, 
 
 ### Use a local checkout instead
 
-To work on a playbook while using it, or before a release exists, point one repository at a checkout of this repository without changing its committed `mise.toml`:
+To work on a playbook while using it, point one repository at a checkout of this repository without changing its committed `mise.toml`:
 
 1. Clone this repository, for example to `~/development/projects/agent-playbooks`.
 2. Create an OMP settings file outside the consuming repository, listing the package by absolute path:
