@@ -1,0 +1,13 @@
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Bun / Node
+node_modules/
+
+# Tool caches
+.rumdl_cache/

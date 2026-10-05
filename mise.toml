@@ -1,0 +1,14 @@
+min_version = "2026.9.1"
+
+[settings]
+lockfile = true
+
+[tool_config]
+locked = true
+
+[tools]
+"aqua:rvben/rumdl" = "0.2.77"
+
+[tasks.lint-markdown]
+description = "Check maintained Markdown without rewriting it"
+run = "rumdl check ."

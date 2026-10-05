@@ -1,0 +1,3 @@
+[global]
+# Prose uses semantic (paragraph) lines.
+disable = ["MD013"]
