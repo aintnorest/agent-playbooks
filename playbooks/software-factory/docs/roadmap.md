@@ -16,7 +16,7 @@ This roadmap records current priorities and later opportunities. Developer appro
 ## Next
 
 - **Pinned read-only install.** Consumers need confidence that an immutable, pinned Playbook copy works with `--no-extensions --extension <copy>/omp-extension.ts` in a sandbox that denies writes to the copy: agents, skills, and every tool must load. Python checkers must not write into the install, including `__pycache__`, and nothing may assume the checkout is writable or is the working repository.
-- **Plan progress reporting.** A supervising tool cannot reliably show task progress if it must parse the run ledger. A harness-neutral contract would let the execution owner report each task's state as execution proceeds.
+- **Plan progress reporting.** A supervising tool cannot reliably show task progress if it must parse the run ledger. The execution owner should report each task's state as execution proceeds, in the progress shape Orch publishes (Orch roadmap, Next: feature pipeline and implementation-plan progress). Wait for that shape rather than designing a separate one.
 - **Document-status migration.** Older repository documents lack the status frontmatter needed to establish their authority. A guided migration would let an agent propose state, revision, and acceptance date from evidence for the developer to confirm.
 
 ## Later
