@@ -16,6 +16,8 @@ LEDGER_ROOT = ".playbook/reviews"
 DECISIONS = ("accepted", "rejected", "nit", "duplicate")
 BLOCKING = ("Blocker", "Major")
 CYCLE_RETURNS = 2
+# From this many full rounds on, a full round with no accepted Blocker settles the document even with Majors.
+FULL_ROUND_LIMIT = 7
 DETAIL_LIMIT = 4000
 SPECIALIST_TYPES = {
     "review-doc-product-vision-agent": "vision",
@@ -242,12 +244,20 @@ def undecided(data: dict) -> list:
 
 
 def settled(data: dict) -> bool:
-    """A full review was decided with no accepted blocking finding: the initial review phase is over."""
+    """The initial review phase is over: a decided full round had no accepted Blocker/Major, or, from the
+    FULL_ROUND_LIMIT-th full round on, no accepted Blocker."""
+    full_rounds = 0
     for entry in recorded(data):
-        if entry.get("mode", "full") != "full" or any(item["decision"] is None for item in entry["findings"]):
+        if entry.get("mode", "full") != "full":
             continue
-        if not any(is_blocking_accepted(item) or (item["decision"] == "duplicate"
-                   and is_blocking_accepted(root(data, entry, item)[1])) for item in entry["findings"]):
+        full_rounds += 1
+        if any(item["decision"] is None for item in entry["findings"]):
+            continue
+        accepted = [item for item in entry["findings"] if is_blocking_accepted(item)] + [
+            original for original in (root(data, entry, item)[1] for item in entry["findings"]
+                                      if item["decision"] == "duplicate") if is_blocking_accepted(original)]
+        if not accepted or (full_rounds >= FULL_ROUND_LIMIT
+                            and all(item["severity"] != "Blocker" for item in accepted)):
             return True
     return False
 

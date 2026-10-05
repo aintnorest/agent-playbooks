@@ -36,7 +36,7 @@ The repository declares the playbook in its committed `mise.toml`, so every clon
 
    ```toml
    [tools]
-   "http:agent-playbooks-software-factory" = { version = "1.0.0", strip_components = 1, url = "https://github.com/aintnorest/agent-playbooks/archive/refs/tags/v{{ version }}.tar.gz", postinstall = "printf 'extensions:\\n  - %s\\n' \"$MISE_TOOL_INSTALL_PATH/playbooks/software-factory\" > \"$MISE_TOOL_INSTALL_PATH/omp-overlay.yml\"" }
+   "http:agent-playbooks-software-factory" = { version = "1.1.0", strip_components = 1, url = "https://github.com/aintnorest/agent-playbooks/archive/refs/tags/v{{ version }}.tar.gz", postinstall = "printf 'extensions:\\n  - %s\\n' \"$MISE_TOOL_INSTALL_PATH/playbooks/software-factory\" > \"$MISE_TOOL_INSTALL_PATH/omp-overlay.yml\"" }
 
    [env]
    PI_CONFIG_FILES = { value = "{% set d = exec(command='mise where http:agent-playbooks-software-factory 2>/dev/null || true') | trim %}{% if d %}{{ d }}/omp-overlay.yml{% endif %}", tools = true }

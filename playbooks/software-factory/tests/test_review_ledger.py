@@ -117,6 +117,16 @@ class ReviewLedgerTests(unittest.TestCase):
         self.assertEqual((result["mode"], result["packet"]), ("full", None))
         self.assertEqual(self.status()["rounds"][-1]["fullReason"], "Developer asked for a full pass.")
 
+    def test_after_seven_full_rounds_majors_alone_end_full_reviews_but_blockers_do_not(self):
+        for number in range(1, 9):
+            self.write(TDD, f"# Design v{number}\n")
+            self.review(f"R{number}", ("R1-F1", "Blocker" if number == 7 else "Major", f"New gap {number}"))
+            self.ok("--decide", "--path", TDD, payload=[{"finding": f"{number}:R1-F1", "decision": "accepted", "reason": "Real."}])
+            self.assertEqual(self.status()["nextMode"], "check" if number == 8 else "full", number)
+        self.write(TDD, "# Design v9\n")
+        self.assertIn("then dispatch a check review", self.status()["next"])
+        self.assertIn("R1-F1 (Major) \u2014 New gap 8", json.loads(self.dispatch("R9").stdout)["rounds"][0]["packet"])
+
     def test_new_blockers_keep_going_but_a_fix_that_keeps_failing_stops_until_the_developer_answers(self):
         for number in range(1, 7):
             self.write(TDD, f"# Design v{number}\n")
