@@ -64,7 +64,7 @@ There is already a second consumer, `knowledge-base-gaming`. It has the same lay
 
 ## Agents and skills
 
-All names use the `kb-` prefix, per `repository-design-notes.md#agent-and-skill-naming`. Each entry gives the job, the evidence that the job recurs, and the boundary that separates it from the other agents.
+All names use the `kb-` prefix, as the repository architecture requires for new playbooks. Each entry gives the job, the evidence that the job recurs, and the boundary that separates it from the other agents.
 
 | Agent | Job | Evidence it recurs | Boundary |
 | --- | --- | --- | --- |
@@ -114,7 +114,7 @@ Checks, with what `check` mode would report against the knowledge base today:
 | Every vault page has a Sources section linking at least one dossier | 7 failures: pages whose evidence is your own GSL work (see open decisions) |
 | `inbox/` holds no source after a successful ingest | Clean |
 
-Hooks: probably only one at first. It would block edits and deletes under `archive/` except appends to `archive/index.md`, mirroring the approval-file guard in the software playbook. The hook stays inactive unless the session repository opts in (see `repository-design-notes.md#hooks-and-opt-in`). Everything else is enforced by the checker's diff mode, run by the ingest and batch procedures.
+Hooks: probably only one at first. It would block edits and deletes under `archive/` except appends to `archive/index.md`, mirroring the approval-file guard in the software playbook. As the repository architecture requires, the hook stays inactive unless the session repository carries the playbook's marker file. Everything else is enforced by the checker's diff mode, run by the ingest and batch procedures.
 
 ## Developer touchpoints
 
