@@ -4,7 +4,7 @@
 // Scripts resolve from this extension's directory, independent of the workspace.
 
 import { spawn } from "node:child_process";
-import { existsSync, realpathSync, statSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@oh-my-pi/pi-coding-agent";
@@ -17,6 +17,7 @@ const checkRunner = fileURLToPath(new URL("./scripts/run-check.py", import.meta.
 const approvalProgram = fileURLToPath(new URL("./scripts/doc-approval.py", import.meta.url));
 const factoryProgram = fileURLToPath(new URL("./scripts/factory-status.py", import.meta.url));
 const ledgerProgram = fileURLToPath(new URL("./scripts/review-ledger.py", import.meta.url));
+const PLAYBOOK_VERSION = readFileSync(new URL("./VERSION", import.meta.url), "utf8").trim();
 const APPROVAL_REFUSAL = "Approval files are not edited directly. `docs/user-approvals.json` belongs to the developer: stop, render a developer request, and ask them to record approval; they can get the line to paste with `/playbook-hash <path>`. To accept or revoke a technical design or implementation plan, use `doc_approval`. Stopping here is the correct way to finish this turn, not a failure.";
 const LEDGER_ROOT = ".playbook/reviews";
 const LEDGER_REFUSAL = `Review ledgers under ${LEDGER_ROOT}/ are written only by the Playbook: review rounds are recorded when a review-doc-* reviewer is dispatched, and findings are decided, voided, or closed with \`review_ledger\`.`;
@@ -391,6 +392,10 @@ export default function softwareFactory(pi: ExtensionAPI) {
     },
   });
 
+  pi.on("session_start", (_event, ctx) => {
+    // Footer status shows which installed release this session loaded.
+    if (ctx.hasUI) ctx.ui.setStatus("software-factory", `software-factory ${PLAYBOOK_VERSION}`);
+  });
   pi.on("turn_start", (_event, ctx) => {
     if (optedIn(sessionRepo(ctx.cwd))) invalidateStatus();
   });
