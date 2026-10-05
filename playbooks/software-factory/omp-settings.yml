@@ -1,0 +1,8 @@
+# OMP settings this playbook's agents need. The install step appends this file to
+# the generated OMP overlay, so these apply only in repositories using this playbook.
+# The review-code-* agents list ast_grep and lsp, which OMP withholds from spawned
+# agents unless these are enabled.
+astGrep:
+  enabled: true
+task:
+  enableLsp: true

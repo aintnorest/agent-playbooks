@@ -36,13 +36,15 @@ The repository declares the playbook in its committed `mise.toml`, so every clon
 
    ```toml
    [tools]
-   "http:agent-playbooks-software-factory" = { version = "1.1.0", strip_components = 1, url = "https://github.com/aintnorest/agent-playbooks/archive/refs/tags/v{{ version }}.tar.gz", postinstall = "printf 'extensions:\\n  - %s\\n' \"$MISE_TOOL_INSTALL_PATH/playbooks/software-factory\" > \"$MISE_TOOL_INSTALL_PATH/omp-overlay.yml\"" }
+   "http:agent-playbooks-software-factory" = { version = "1.1.0", strip_components = 1, url = "https://github.com/aintnorest/agent-playbooks/archive/refs/tags/v{{ version }}.tar.gz", postinstall = "p=\"$MISE_TOOL_INSTALL_PATH/playbooks/software-factory\"; { printf 'extensions:\\n  - %s\\n' \"$p\"; [ ! -f \"$p/omp-settings.yml\" ] || cat \"$p/omp-settings.yml\"; } > \"$MISE_TOOL_INSTALL_PATH/omp-overlay.yml\"" }
 
    [env]
    PI_CONFIG_FILES = { value = "{% set d = exec(command='mise where http:agent-playbooks-software-factory 2>/dev/null || true') | trim %}{% if d %}{{ d }}/omp-overlay.yml{% endif %}", tools = true }
    ```
 
    For another playbook, replace both occurrences of `agent-playbooks-software-factory` and the `playbooks/software-factory` path with that playbook's name. Keep `strip_components = 1`; without it the package lands one directory too deep and its skills do not load.
+
+   The install step also appends the playbook's `omp-settings.yml`, when it has one, to the generated settings file. Those are OMP settings the playbook's agents need, such as Software Factory's `astGrep.enabled` and `task.enableLsp`, so they apply only in repositories that use the playbook. Settings in your global configuration that the file does not name are kept.
 
 3. **Install it, once per clone:**
 
@@ -61,7 +63,7 @@ The repository declares the playbook in its committed `mise.toml`, so every clon
 
 ### Upgrade
 
-Change `version` in the repository's `mise.toml`, run `mise install`, and restart OMP. The upgrade shows in the repository's diff. A release that changes how consuming repositories must work ships a migration guide in the playbook's `guides/migrations/`.
+Change `version` in the repository's `mise.toml`, run `mise install`, and restart OMP. If the tool line in [install in a repository](#install-in-a-repository) has changed since you copied it, replace yours with it first; mise applies a changed install step only when it installs a version. The upgrade shows in the repository's diff. A major release, which changes how consuming repositories must work, ships a migration guide in the playbook's `guides/migrations/`.
 
 ### How it works
 
@@ -84,11 +86,15 @@ mise downloads the tagged release archive and writes a small OMP settings file, 
 To work on a playbook while using it, point one repository at a checkout of this repository without changing its committed `mise.toml`:
 
 1. Clone this repository, for example to `~/development/projects/agent-playbooks`.
-2. Create an OMP settings file outside the consuming repository, listing the package by absolute path:
+2. Create an OMP settings file outside the consuming repository, listing the package by absolute path, followed by the contents of the package's `omp-settings.yml` if it has one:
 
    ```yaml
    extensions:
      - /Users/you/development/projects/agent-playbooks/playbooks/software-factory
+   astGrep:
+     enabled: true
+   task:
+     enableLsp: true
    ```
 
 3. In the consuming repository, add an uncommitted `mise.local.toml` pointing at that file. It needs `tools = true`; without it, the committed release pin wins:
@@ -117,7 +123,7 @@ lefthook install
 
 The pre-commit hook regenerates each package's skills; the pre-push hook runs each package's tests and OMP load check, then lints all maintained Markdown. Run the push checks by hand with `lefthook run pre-push --force`.
 
-Design notes for the repository layout and planned playbooks are in [`docs/`](docs/repository-design-notes.md).
+The repository's product vision and architecture, covering package layout, releases, and how playbooks load with and without Orch, are in [`docs/product-vision.md`](docs/product-vision.md) and [`docs/architecture.md`](docs/architecture.md). Working notes for the planned knowledge-base playbook are in [`docs/knowledge-base-playbook-notes.md`](docs/knowledge-base-playbook-notes.md).
 
 ## License
 

@@ -11,7 +11,7 @@ This document records how the Playbook is built to deliver its guidance: the rul
 
 ## Imposed constraints
 
-The vision's [product-wide boundaries](product-vision.md#product-wide-boundaries-and-non-goals) and [constraints every feature must preserve](product-vision.md#constraints-every-feature-must-preserve) bind every choice here; this document gives versioned contracts and the developer's safety their technical form without restating them. The Playbook ships no runtime for consuming projects and runs only on the developer's machine, inside OMP or a shell.
+The product-wide boundaries and constraints every feature must preserve, in the [repository's product vision](../../../docs/product-vision.md) and [this playbook's](product-vision.md), bind every choice here; this document gives versioned contracts and the developer's safety their technical form without restating them. The Playbook ships no runtime for consuming projects and runs only on the developer's machine, inside OMP or a shell.
 
 ## System boundary
 
@@ -32,7 +32,7 @@ The vision's [product-wide boundaries](product-vision.md#product-wide-boundaries
 The Playbook is the package at `playbooks/software-factory/` in the `agent-playbooks` repository; paths in this document are relative to the package unless they name the repository root. The package separates authored rules, authored task procedures, generated per-task artifacts, deterministic programs, and extension code, so each rule and each check has exactly one home. Package layout (every `[EXISTS]` path in this document was verified by listing the package root, the repository root, and the named directories):
 
 - `guides/` [EXISTS] — shared rules, each stated once, plus machine-readable contracts such as `guides/developer-request.schema.json` [EXISTS].
-- `guides/migrations/` [EXISTS] — guided migrations for releases that change consumer contracts.
+- `guides/migrations/` [EXISTS] — guided migrations for major releases.
 - `skill-sources/` [EXISTS] — one authored task procedure per skill, selecting guide sections by link.
 - `skills/` [EXISTS] — generated per-task skills (`SKILL.md` plus `references/`); committed so consumers never build.
 - `agents/` [EXISTS] — one OMP agent per skill, plus `agents/routing-cases.json` [EXISTS] and build-check exceptions in `agents/checks.json` [EXISTS].
@@ -43,7 +43,7 @@ The Playbook is the package at `playbooks/software-factory/` in the `agent-playb
 - `integrations/` [EXISTS] — installation, update, and OMP runtime facts a consumer acts on.
 - `research/` [EXISTS] — evidence notes that inform guidance and never govern it.
 - `docs/` [EXISTS] — the Playbook's own product documents.
-- Package root files: `omp-extension.ts` [EXISTS] (contract tools, contract hooks, and developer commands), `package.json` [EXISTS] and `bun.lock` [EXISTS] (extension manifest and locked development dependency), `VERSION` [EXISTS], `README.md` [EXISTS].
+- Package root files: `omp-extension.ts` [EXISTS] (contract tools, contract hooks, and developer commands), `omp-settings.yml` [EXISTS] (OMP settings the agents need), `package.json` [EXISTS] and `bun.lock` [EXISTS] (extension manifest and locked development dependency), `VERSION` [EXISTS], `README.md` [EXISTS].
 - Repository root files shared by every package: `lefthook.yml` [EXISTS] (Git hooks), `mise.toml` [EXISTS] and `mise.lock` [EXISTS] (maintainer tool pins and tasks), `.rumdl.toml` [EXISTS] (Markdown check configuration), `LICENSE` [EXISTS], and the maintainer's issue-tracker state in `.beads/` [EXISTS], which Git ignores and consumers never load.
 
 ## Content flow
@@ -79,13 +79,14 @@ A consumer contract is any format, grammar, mode, output, or schema that consumi
 - Task verification: `scripts/run-check.py` owns execution, Bash pipefail, timeouts, external logs, and passed/failed/timed-out/unavailable results; `run_check` declares arguments. Missing commands (exit 127) are unavailable, not verified and not a task-code failure. Read by the orchestrator, which gates task, integration, and final checks on its results.
 - Markdown review reports: the [document](../guides/document-review.md#report), [code](../guides/code-review.md#report), [skill](../guides/skill-authoring.md#report-without-editing), and [friction](../guides/friction.md#report) report contracts, delivered as [review report delivery](../guides/agents.md#review-report-delivery) specifies. Read by the agent that dispatched the reviewer, as [reading reviewer reports](../guides/agents.md#reading-reviewer-reports) specifies; friction reports are also read by `review-skill` when supplied as evidence. No program parses them.
 - Friction lines: the [Friction line](../guides/communication-policy.md#friction-line) rule. Read by `scripts/collect-agent-runs.py` [EXISTS] through `collect_agent_runs`, and by `review-friction`.
+- Package OMP settings: `omp-settings.yml` [EXISTS], a YAML mapping of OMP settings the agents need and never `extensions`. Read by the install snippet in the repository README, which appends it to the generated overlay so the settings apply only where the playbook is installed; [integrations/omp.md](../integrations/omp.md#verify) names why each setting is needed.
 
 Rules shared by every contract:
 
 - **Program output.** A checker is deterministic for the same files and revisions. It reports diagnostics on standard error with a nonzero exit, and writes standard output only in its machine-readable modes; tools treat any other output as a failure.
 - **Optional arguments.** A null or empty optional tool argument means absent, except where a mode requires a supplied argument to be non-empty; each such exception is declared with the tool in `omp-extension.ts`.
 - **Releases.** `VERSION` owns the release number, and each release is the Git tag `v<version>`; the `package.json` version is not a release identifier. Numbers follow [Semantic Versioning](https://semver.org/): a change that makes a previously valid document, plan, tool call, or report consumer invalid, or changes the meaning of existing output, bumps the major number; an additive contract change bumps the minor number; a release with no contract change bumps the patch number.
-- **Migrations.** Each release that changes a consumer contract ships its guided migration for consumer repositories as `guides/migrations/<from>-to-<to>.md`, named by the two release numbers; releases with no contract change have none. The first is `guides/migrations/0.1.0-to-1.0.0.md` [EXISTS].
+- **Migrations.** Each major release ships its guided migration for consumer repositories as `guides/migrations/<from>-to-<to>.md`, named by the two release numbers. Minor and patch releases have none, because everything that was valid stays valid; a changed install snippet is picked up from the repository README when upgrading. The first is `guides/migrations/0.1.0-to-1.0.0.md` [EXISTS].
 
 ## Build, checks, and gates
 
@@ -128,7 +129,7 @@ Rules shared by every contract:
 | Program output contract | Decided | Developer, repository at `96ae784` | [Consumer contracts and versioning](#consumer-contracts-and-versioning) |
 | Optional tool arguments | Decided | Developer, 2026-09-30 | [Consumer contracts and versioning](#consumer-contracts-and-versioning) |
 | Release identity and Semantic Versioning | Decided | Developer, 2026-09-29 | [Consumer contracts and versioning](#consumer-contracts-and-versioning) |
-| Migration guides | Decided | Developer, 2026-09-29 | [Consumer contracts and versioning](#consumer-contracts-and-versioning) |
+| Migration guides for major releases only | Decided | Developer, 2026-10-05 | [Consumer contracts and versioning](#consumer-contracts-and-versioning) |
 | Build check | Decided | Developer, repository at `96ae784` | [Build, checks, and gates](#build-checks-and-gates) |
 | Contract test strategy | Decided | Developer, 2026-09-30 | [Build, checks, and gates](#build-checks-and-gates) |
 | Markdown check with rumdl | Decided | Developer, 2026-09-29 | [Build, checks, and gates](#build-checks-and-gates) |

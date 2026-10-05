@@ -31,14 +31,7 @@ Follow [install in a repository](../../../README.md#install-in-a-repository) in 
 
 The generated skills are marked `hide: true`, so they deliberately do not appear in the global skill menu. Hidden skills remain reachable through `skill://<name>` and `/skill:<name>` when `skills.enableSkillCommands` is enabled. Agents autoload their own skills; load the factory skill explicitly as described below. An empty skill menu is expected, not a failed install.
 
-The `review-code-*` agents list `ast_grep` and `lsp` in their tools, but OMP withholds both from spawned agents by default. Set these in the same configuration file, or run `omp config set astGrep.enabled true` and `omp config set task.enableLsp true`:
-
-```yaml
-astGrep:
-  enabled: true
-task:
-  enableLsp: true
-```
+The `review-code-*` agents list `ast_grep` and `lsp` in their tools, but OMP withholds both from spawned agents by default. The package's `omp-settings.yml` enables `astGrep.enabled` and `task.enableLsp`, and the install step appends it to the generated overlay, so both apply only in repositories that use this playbook. When OMP loads the package another way, add that file's settings to the configuration that loads it.
 
 `task.enableLsp` gives spawned agents LSP; agents with a `tools` list receive only its read-only actions. It costs extra tokens for every agent that lists `lsp`. `lsp` also needs each project's language server on `PATH`, for example `rust-analyzer` (`rustup component add rust-analyzer` for every toolchain the project uses), `typescript-language-server`, or `basedpyright-langserver` (or `pyright-langserver`) for Python. Restart OMP after changing these settings. If a project uses mise shims for language servers, follow the [project tooling guide's trust instructions](../guides/project-tooling.md#trust-configuration-outside-ci).
 
