@@ -239,7 +239,7 @@ Also verified:
 
 #### Editing a playbook while using it
 
-- In a repo where you want your live checkout instead of the pinned release, put a `PI_CONFIG_FILES` override in an uncommitted `mise.local.toml`. Point it at an overlay listing `~/development/projects/agent-playbooks/playbooks/<name>`, which is option B's form. **[INFERENCE]** Standard mise local-override behavior; not tested here.
+- In a repo where you want your live checkout instead of the pinned release, put a `PI_CONFIG_FILES` override in an uncommitted `mise.local.toml`, pointing at an overlay that lists `<checkout>/playbooks/<name>` by absolute path. **Verified 2026-10-05** in a temp consumer repo against a local tarball of commit `433c5da`: the override must also set `tools = true` (`PI_CONFIG_FILES = { value = "<overlay>", tools = true }`). A plain string value loses to the committed `tools = true` value. With `tools = true` it wins, and OMP loaded the checkout's package. The steps live in the root README.
 - Restart OMP after changing an `extension.ts`; `/reload-plugins` does not reload extension factories (`project-playbook/integrations/omp.md:122`).
 
 **Can start before the migration.** The same snippet can pin today's `project-playbook` once it has a release that includes `package.json`: tool `http:project-playbook`, URL `.../project-playbook/archive/refs/tags/v{{ version }}.tar.gz`, overlay entry `$MISE_TOOL_INSTALL_PATH`. Then empty the global `extensions:` list.

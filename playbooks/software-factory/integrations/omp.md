@@ -1,6 +1,6 @@
 # Install the playbook in OMP
 
-The playbook installs once, at the root OMP configuration, and applies to every project. Nothing is copied into consuming repositories.
+The playbook installs per repository: the consuming repository pins a release in its `mise.toml`, as the [repository README](../../../README.md#install-in-a-repository) describes. Nothing else is copied into consuming repositories except one `AGENTS.md` tripwire line.
 
 Enabling this package directory, `playbooks/software-factory/` in the `agent-playbooks` repository, as an OMP extension package exposes:
 
@@ -23,20 +23,7 @@ OMP's task `isolated` creates a temporary workspace, applies its patch or cherry
 
 ## Install
 
-Clone the repository once, somewhere stable:
-
-```sh
-git clone https://github.com/aintnorest/agent-playbooks.git ~/development/projects/agent-playbooks
-```
-
-Add the package directory, not the repository root, to `extensions:` in the root OMP configuration, `~/.omp/agent/config.yml`:
-
-```yaml
-extensions:
-  - ~/development/projects/agent-playbooks/playbooks/software-factory
-```
-
-Restart OMP. A new extension root is read at startup; `/reload-plugins` refreshes only skills, commands, and MCP servers.
+Follow [install in a repository](../../../README.md#install-in-a-repository) in the repository README. This playbook's tool name is `http:agent-playbooks-software-factory` and its package path is `playbooks/software-factory`, as in that README's example. To use a local checkout instead of a release, follow [use a local checkout instead](../../../README.md#use-a-local-checkout-instead).
 
 ## Verify
 
@@ -113,17 +100,11 @@ Agents pin concrete models. To route them through roles instead, replace an agen
 
 ## Update
 
-Pull the checkout:
-
-```sh
-git -C ~/development/projects/agent-playbooks pull
-```
+Change the pinned version and reinstall, as [upgrade](../../../README.md#upgrade) in the repository README describes. With a local checkout, pull it instead.
 
 Agents are rediscovered on the next dispatch, but an active session's skill registry can retain the old names. After adding or renaming a skill, run `/reload-plugins` or start a fresh OMP session before dispatching its agent; otherwise the new agent can be found while its `skill://` URI is still unknown. Restart after changing the `extensions:` entry itself.
 
 Restart OMP after changing `omp-extension.ts`, including after pulling an extension-load fix. Sessions that failed to load the extension do not acquire its tools automatically; `/reload-plugins` does not reload extension factories.
-
-Pin a release by checking out a tag in that clone when a moving `main` is not acceptable.
 
 ## Project-specific facts stay in the project
 
